@@ -326,6 +326,7 @@ Never change behavior and structure in the same step.
 - One logical change per commit
 - Present tense, imperative: "Add caching" not "Added caching"
 - First line ≤50 chars, blank line, then details
+- Follow GIT templates if present in the repository
 
 ### Branches
 
