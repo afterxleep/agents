@@ -6,11 +6,70 @@
 
 ## Core Principles
 
-1. **Clarity over cleverness** — Write code a tired engineer can debug at 2am
-2. **Explicit over implicit** — Don't hide behavior in magic
-3. **Composition over inheritance** — Small, focused units that combine
-4. **Fail fast, fail loud** — Surface errors at the source, not downstream
+1. **Clarity over cleverness** — Write code a tired engineer debugs at 2am
+2. **Explicit over implicit** — No magic, no surprises
+3. **Composition over inheritance** — Small units that combine
+4. **Fail fast, fail loud** — Errors surface at the source
 5. **Delete code** — Less code = fewer bugs. Question every addition.
+6. **Verify, don't assume** — Run it. Test it. Prove it works.
+
+---
+
+## Feature Development Workflow
+
+### Before Writing Code
+
+1. **Clarify requirements** — Restate the goal. Ask if ambiguous.
+2. **Identify failure modes** — List what can go wrong:
+   - Invalid inputs
+   - Missing dependencies
+   - Network/IO failures
+   - Concurrency issues
+   - Resource exhaustion
+3. **Classify by priority**:
+   - **Core flow**: Happy path + direct error cases
+   - **Edge cases**: Unusual but valid scenarios
+   - **Out of scope**: Document, don't implement
+4. **Check existing code** — Is this already solved? Can you extend rather than create?
+
+### Implementation Order
+
+1. Write failing test for core happy path
+2. Implement minimum code to pass
+3. Write failing tests for core error cases
+4. Implement error handling
+5. Refactor if needed (tests stay green)
+6. Add edge case tests only after core is solid
+
+### Before Submitting
+
+- [ ] All tests pass
+- [ ] No commented-out code
+- [ ] No TODO without context (`// TODO: [reason] description`)
+- [ ] Error messages are actionable
+- [ ] No secrets, credentials, or hardcoded environment-specific values
+- [ ] Formatting/linting passes
+
+---
+
+## Debugging Process
+
+### When Something Fails
+
+1. **Reproduce reliably** — Can you trigger it consistently?
+2. **Isolate the scope** — What's the smallest input that fails?
+3. **Read the error** — Actually read it. Full stack trace.
+4. **Form a hypothesis** — One specific guess about the cause
+5. **Test the hypothesis** — Add logging, write a test, or inspect state
+6. **Fix and verify** — Change one thing. Confirm it's fixed.
+7. **Add regression test** — Ensure it can't silently break again
+
+### Don't
+
+- Change multiple things at once
+- Assume you know the cause without evidence
+- Delete error handling to "simplify"
+- Fix symptoms instead of root causes
 
 ---
 
@@ -20,8 +79,8 @@
 
 - One type per file
 - Filename matches type name exactly
-- Group by feature/domain, not by technical layer
-- Shared utilities go in `Core/` or `Common/` with zero domain dependencies
+- Group by feature/domain, not by layer
+- Shared utilities in `Core/` or `Common/` — zero domain dependencies
 
 ### Dependency Direction
 
@@ -29,14 +88,14 @@
 Features → Services → Core
     ↓          ↓        ↓
    UI      Business   Utilities
-          Logic
+           Logic
 ```
 
 - `Core/` depends on nothing internal
 - `Services/` depends only on `Core/`
-- `Features/` can depend on `Services/` and `Core/`
-- Never create circular dependencies
-- A feature should be deletable without breaking unrelated code
+- `Features/` depends on `Services/` and `Core/`
+- No circular dependencies
+- Features are deletable without breaking unrelated code
 
 ---
 
@@ -48,30 +107,30 @@ Features → Services → Core
 |------|------------|
 | Types/Classes | `UpperCamelCase` |
 | Functions/Variables | `lowerCamelCase` |
-| Constants | `lowerCamelCase` or `SCREAMING_SNAKE_CASE` (lang convention) |
-| Protocols/Interfaces | `UpperCamelCase`, noun or adjective (`Buildable`, `BuildService`) |
+| Constants | `lowerCamelCase` or `SCREAMING_SNAKE_CASE` (follow language convention) |
+| Protocols/Interfaces | `UpperCamelCase`, noun or adjective |
 
 ### Functions
 
 - Do one thing
-- Name describes what it does, not how
-- Max 3-4 parameters — beyond that, use a configuration object
+- Name describes what, not how
+- Max 3-4 parameters — beyond that, use a config object
 - Avoid boolean parameters — they obscure intent at call sites
 
 ```
-// Bad: what does `true` mean?
+// Bad
 build(scheme, true, false)
 
-// Good: intent is clear
+// Good
 build(scheme, configuration: .release, clean: true)
 ```
 
 ### Comments
 
 - Explain WHY, not WHAT
-- Delete comments that restate the code
+- Delete comments that restate code
 - TODO format: `// TODO: [context] description`
-- Document non-obvious behavior and workarounds with context
+- Document non-obvious behavior and workarounds
 
 ---
 
@@ -80,17 +139,17 @@ build(scheme, configuration: .release, clean: true)
 ### Rules
 
 1. Define domain-specific error types per module
-2. Include context in errors (what failed, with what inputs)
-3. Map external errors to domain errors at boundaries — don't leak implementation details
-4. Fail at the source — don't pass invalid state downstream hoping someone else handles it
-5. Errors are part of your API — design them as carefully as success paths
+2. Include context: what failed, with what inputs
+3. Map external errors at boundaries — don't leak implementation details
+4. Fail at the source — don't pass invalid state hoping someone handles it
+5. Errors are API — design them like success paths
 
-### Error Design Checklist
+### Error Checklist
 
-- [ ] Does the error message help diagnose the problem?
-- [ ] Does it include relevant context (IDs, paths, values)?
-- [ ] Can the caller distinguish between error types programmatically?
-- [ ] Are transient vs permanent failures distinguishable?
+- [ ] Message helps diagnose the problem
+- [ ] Includes relevant context (IDs, paths, values)
+- [ ] Caller can distinguish error types programmatically
+- [ ] Transient vs permanent failures are distinguishable
 
 ---
 
@@ -99,76 +158,107 @@ build(scheme, configuration: .release, clean: true)
 ### Principles
 
 - Tests are isolated: no shared state, no execution order dependencies
-- One behavior per test
-- Tests run in parallel
+- One behavior per test, descriptive names: `test_build_failsWhenSchemeNotFound`
+- Tests run in parallel — design for it
 - Test behavior, not implementation
+- Fast tests get run; slow tests get skipped
 
-### Naming
+### Before Writing a Test
+
+1. Check if the **behavior** is already tested (not just the code path — multiple tests can hit the same lines testing different behaviors)
+2. Identify the mock in `Tests/Mocks/` — create only if missing
+3. Identify the fixture in `Tests/Fixtures/` — create only if missing
+
+### When Adding Features
+
+1. **Document failure modes first** — List edge cases and failure scenarios in a comment block before writing implementation code:
+   ```
+   // Failure modes:
+   // - Scheme not found in project
+   // - Build timeout exceeded  
+   // - Simulator unavailable
+   // - Concurrent build in progress
+   ```
+2. Write tests in this order:
+   - Happy path for core flow
+   - Error/failure cases for core flow
+   - Edge cases (only after core flow is solid)
+3. Don't skip ahead — core flow must be solid before edge cases
+
+### Test Naming
 
 ```
-test_{unit}_{scenario}_{expectedOutcome}
+test_{unit}_{condition}_{expectedResult}
 ```
 
 Examples:
-- `test_build_whenSchemeNotFound_throwsError`
-- `test_parse_withMalformedJSON_returnsNil`
-- `test_cache_afterExpiration_fetchesNewData`
+- `test_build_failsWhenSchemeNotFound`
+- `test_parse_returnsNilForMalformedJSON`
+- `test_cache_fetchesNewDataAfterExpiration`
 
 ### Structure: Arrange-Act-Assert
 
 ```
 func test_example() {
-    // Arrange — set up preconditions
+    // Arrange — setup preconditions
     
-    // Act — execute the behavior under test
+    // Act — execute behavior under test
     
     // Assert — verify outcomes
 }
 ```
 
-One blank line between sections. No other code structure.
+One blank line between sections. No other structure.
 
-### Before Writing a Test
+### What to Test
 
-1. Verify the behavior isn't already tested
-2. Identify required mock in `Tests/Mocks/` — create only if missing
-3. Identify required fixture in `Tests/Fixtures/` — create only if missing
+| Test | Don't Test |
+|------|------------|
+| Public interface behavior | Private implementation details |
+| Error handling paths | Framework/language behavior |
+| State transitions | Trivial getters/setters |
+| Business logic | Third-party library internals |
 
-### Test Priority (when adding features)
+### Unit vs Integration
 
-1. Happy path for core flow
-2. Error cases for core flow
-3. Edge cases (only after core is solid)
+- **Unit**: Single component, mocked dependencies, fast
+- **Integration**: Multiple components, real dependencies, slower
 
-### What NOT to Test
-
-- Private implementation details (test via public interface)
-- Framework/language behavior
-- Trivial data containers with no logic
-- Third-party library internals
+Default to unit tests. Use integration tests for:
+- Critical paths that must work end-to-end
+- Complex component interactions
+- External service contract validation
 
 ---
 
 ## Mocks
 
 **Location:** `Tests/Mocks/`  
-**Naming:** `Mock{InterfaceName}`
+**Naming:** `Mock{ProtocolName}` (e.g., `MockBuildService`)
 
-### Mock Requirements
+### Rules
 
-1. Track all inputs received (for verification)
-2. Allow stubbing return values (for control)
-3. Provide `reset()` method for reuse
-4. One mock per interface
-5. Stateless or explicitly resettable
+1. One mock per protocol/interface
+2. Mocks must be stateless or resettable between tests
+3. Track all inputs received (for verification)
+4. Allow stubbing return values (for control)
+5. Provide `reset()` method to clear state
+
+### Structure
 
 ```
 MockBuildService
-├── stubbedBuildResult      // Control what it returns
-├── receivedConfigurations  // Verify what it received  
-├── buildCallCount          // Verify how many times called
+├── stubbedResult           // Control what it returns
+├── receivedConfigurations  // Verify what it received
+├── callCount               // Verify how many times called
 └── reset()                 // Clear state between tests
 ```
+
+### Don't
+
+- Create test-specific mocks — reuse shared mocks
+- Let mocks accumulate state across tests
+- Mock what you don't own (wrap it first, mock the wrapper)
 
 ---
 
@@ -176,113 +266,56 @@ MockBuildService
 
 **Location:** `Tests/Fixtures/`
 
-### Rules
+- Static, deterministic test data
+- Named descriptively: `validUser`, `expiredToken`, `malformedResponse`
+- Minimal — only fields relevant to tests
+- JSON/data files in `Fixtures/` folder
+- Code-based fixtures in `{Type}+Fixtures` extension files
 
-- Fixtures are static, deterministic test data
-- Name fixtures descriptively: `validUser`, `expiredToken`, `malformedResponse`
-- Keep fixtures minimal — only include fields relevant to tests
-- JSON/data files go in `Fixtures/` folder
-- Code-based fixtures go in `{Type}+Fixtures` extension files
+---
+
+## Refactoring
+
+### When to Refactor
+
+- Before adding a feature (make the change easy, then make the easy change)
+- After tests pass (not during implementation)
+- When you touch code that's hard to understand
+
+### When NOT to Refactor
+
+- While debugging
+- Without test coverage
+- Unrelated to the current task
+- "While I'm here" changes — make a separate commit or ticket
+
+### How to Refactor
+
+1. Ensure tests exist and pass
+2. Make one structural change
+3. Run tests
+4. Repeat
+
+Never change behavior and structure in the same step.
 
 ---
 
 ## Dependencies
 
-### Before Adding a Dependency
+### Before Adding
 
 1. Can we solve this in <100 lines ourselves?
 2. Is it actively maintained?
 3. What's the transitive dependency cost?
 4. What's the license?
-5. What happens if this disappears tomorrow?
+5. What if it disappears tomorrow?
 
 ### Rules
 
 - Wrap third-party APIs behind interfaces you control
 - Pin versions explicitly
-- Isolate dependency imports to wrapper modules when possible
-- Update dependencies deliberately, not automatically
-
----
-
-## Security
-
-- Never log secrets, tokens, or PII (redact by default)
-- Validate and sanitize all inputs at boundaries
-- Prefer least-privilege configs and credentials
-- Use allowlists over denylists for sensitive operations
-- Store secrets in managed secret stores, never in source control
-- Security-related failures should be explicit, consistent, and audited
-
----
-
-## API Design & Versioning
-
-- Version any public API and document breaking changes
-- Deprecate with a clear policy and timeline
-- Use semantic versioning when possible
-- Backward compatibility is a feature; treat it as such
-
----
-
-## Observability
-
-- Use structured logs (not ad-hoc strings)
-- Attach correlation/request IDs to key flows
-- Emit metrics for core paths and failures
-- Errors include stable error codes for support/debugging
-
----
-
-## Performance Budgets
-
-- Define budgets for critical paths (startup, latency, memory)
-- Add guardrails to prevent regressions
-- Treat performance as a product feature
-
----
-
-## Documentation
-
-- Every module/feature has a README: purpose, public API, quick usage
-- Document invariants and expected lifecycle behavior
-- Keep docs close to code and update with changes
-
----
-
-## Configuration & Environment
-
-- No hidden global state; config is explicit and validated at startup
-- Environments must be reproducible from source control
-- Fail fast on missing or invalid config
-
----
-
-## Concurrency & Threading
-
-- Document thread-safety and async expectations for public APIs
-- Avoid shared mutable state; prefer immutability and message passing
-- Concurrency bugs are correctness bugs—treat them as such
-
----
-
-## Data Migrations
-
-- Migrations are idempotent and forward-compatible
-- Prefer reversible migrations when feasible
-- Validate pre- and post-conditions
-
----
-
-## Code Review
-
-### Minimum Checklist
-
-- [ ] Tests added or updated
-- [ ] Error handling reviewed for context and clarity
-- [ ] Logging/metrics added where needed
-- [ ] Security and privacy considerations covered
-- [ ] Performance implications considered
+- Isolate imports to wrapper modules
+- Update deliberately, not automatically
 
 ---
 
@@ -291,21 +324,22 @@ MockBuildService
 ### Commits
 
 - One logical change per commit
-- Present tense, imperative mood: "Add build caching" not "Added build caching"
-- First line ≤50 chars, then blank line, then details if needed
+- Present tense, imperative: "Add caching" not "Added caching"
+- First line ≤50 chars, blank line, then details
 
 ### Branches
 
 - `main` is always deployable
-- Feature branches: `feature/{short-description}`
-- Fix branches: `fix/{issue-or-description}`
-- Delete branches after merge
+- Feature: `feature/{description}`
+- Fix: `fix/{description}`
+- Delete after merge
 
 ---
 
 ## When Uncertain
 
-1. **Check existing patterns** — How does the codebase already solve similar problems?
+1. **Check existing patterns** — How does the codebase solve similar problems?
 2. **Ask** — Ambiguity is expensive. Clarify before implementing.
-3. **Smallest change** — Prefer the minimal diff that solves the problem.
-4. **Reversibility** — Prefer changes that are easy to undo.
+3. **Smallest change** — Prefer minimal diff that solves the problem.
+4. **Reversibility** — Prefer changes easy to undo.
+5. **Prove it** — Run the code. Pass the tests. Don't guess.
