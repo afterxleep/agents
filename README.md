@@ -27,7 +27,7 @@ Or just steal what's useful and make it your own.
 
 ## Philosophy
 
-These aren't meant to be comprehensive or "correct" — they're meant to be *useful*. Agents interpret literally, so the rules are explicit. They also love to skip steps, so the workflows are numbered.
+These aren't meant to be comprehensive or "correct" They're meant to be *useful*. Agents interpret literally, so the rules are explicit. They also love to skip steps, so the workflows are numbered.
 
 If something doesn't work, I change it. If something's missing, I add it.
 
