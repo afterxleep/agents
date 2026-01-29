@@ -16,12 +16,7 @@ More coming: platform-specific standards, reusable skills, prompt templates.
 
 ## How I Use It
 
-Drop the relevant files into your project, or reference them directly:
-
-```
-# In your project's AGENTS.md or CLAUDE.md
-See: https://github.com/afterxleep/agents/blob/main/AGENTS.md
-```
+Drop the relevant files into your project or ~/.codex or ~/.claude folder.
 
 Or just steal what's useful and make it your own.
 
