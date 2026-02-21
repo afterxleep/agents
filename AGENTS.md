@@ -4,7 +4,7 @@
 
 ---
 
-## Core Principles
+## Core Engineering Principles
 
 1. **Clarity over cleverness** — Write code a tired engineer can debug at 2am
 2. **Explicit over implicit** — No magic, no surprises
