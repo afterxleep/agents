@@ -19,17 +19,17 @@
 
 ### Before Writing Code
 
-1. **Clarify requirements** — Restate the goal. Ask if ambiguous.
-2. **Identify failure modes** — List what can go wrong:
+1. **Clarify requirements** — Restate the goal. Ask questions if ambiguous.
+2. **Identify failure modes** — Identify what can go wrong:
    - Invalid inputs
    - Missing dependencies
    - Network/IO failures
    - Concurrency issues
-   - Resource exhaustion
-3. **Classify by priority**:
-   - **Core flow**: Happy path + direct error cases
-   - **Edge cases**: Unusual but valid scenarios
-   - **Out of scope**: Document, don't implement
+   - Memory Leaks / Resource exhaustion
+3. **Classify work by priority**:
+   - **A. Core flow**: Happy path + direct error cases
+   - **B. Edge cases**: Unusual but valid scenarios
+   - **C. Out of scope**: Document, don't implement
 4. **Check existing code** — Is this already solved? Can you extend rather than create?
 
 ### Implementation Order
