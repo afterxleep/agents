@@ -6,7 +6,7 @@
 
 ## Core Principles
 
-1. **Clarity over cleverness** — Write code a tired engineer debugs at 2am
+1. **Clarity over cleverness** — Write code a tired engineer can debug at 2am
 2. **Explicit over implicit** — No magic, no surprises
 3. **Composition over inheritance** — Small units that combine
 4. **Fail fast, fail loud** — Errors surface at the source
