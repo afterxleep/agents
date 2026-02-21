@@ -6,12 +6,12 @@
 
 ## Core Engineering Principles
 
-1. **Clarity over cleverness** — Write code a tired engineer can debug at 2am
-2. **Explicit over implicit** — No magic, no surprises
-3. **Composition over inheritance** — Small units that combine
-4. **Fail fast, fail loud** — Errors surface at the source
-5. **Delete code** — Less code = fewer bugs. Question every addition.
-6. **Verify, don't assume** — Run it. Test it. Prove it works.
+1. **Clarity over cleverness** — Write code that's easy to understand, not code that shows off
+2. **Explicit over implicit** — Make behavior obvious. No hidden logic or magic
+3. **Composition over inheritance** — Build with small, independent pieces that work together
+4. **Fail fast, fail loud** — Surface errors immediately at their source, don't hide them
+5. **Delete code** — Less code means fewer bugs. Remove anything unnecessary
+6. **Verify, don't assume** — Actually run and test the code. Don't trust it works without proof
 
 ---
 
