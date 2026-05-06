@@ -1,35 +1,43 @@
 # Agents
 
-My collection of standards, skills, and rules for AI coding agents.  (WIP)
+This is a repository of prompts, instructions, and skills I often use with AI coding agents.
 
-## Why This Exists
+It is a personal toolbox for getting agents to work in a consistent way across projects. Some files are broad engineering rules, some are focused prompt workflows, and some are reusable skills for specific tools, platforms, or kinds of work.
 
-I work with Claude Code, Codex Cursor, and whatever else ships next week. They're all decent at writing code. They're all terrible at writing code *the way I want it*.
+## What This Is
 
-This repo is my attempt to fix that — a single place for engineering standards, testing guidelines, and reusable skills that I can point any agent at.
+- **Prompts** are task-specific instructions I can paste into an agent when I want it to follow a particular workflow.
+- **Instructions** are standing rules for how I want agents to write code, test changes, handle errors, and organize work.
+- **Skills** are reusable, focused guides for specialized tasks. They give an agent a narrower operating mode, such as Swift concurrency work, SwiftUI refactoring, or pixel-perfect UI implementation.
 
-## What's Here (For now)
+## What's Here
 
-- **[AGENTS.md](./AGENTS.md)** — Core engineering standards. Language-agnostic rules for how I want code written, tested, and organized.
+- **[AGENTS.md](./AGENTS.md)** - General engineering standards for agents. Covers code style, testing, error handling, mocks, fixtures, dependencies, security, documentation, and git hygiene.
+- **[PROJECT.md](./PROJECT.md)** - A project-specific companion file for repo-level context, structure, and workflow rules.
+- **[SWIFT.md](./SWIFT.md)** - A Swift engineering guide for production codebases. It covers Swift API design, state, persistence, concurrency, testing, error handling, documentation, and related skills.
+- **[PR-loop.md](./PR-loop.md)** - A prompt for autonomously triaging open GitHub PRs, handling clean merges, classifying CI failures, and escalating anything that needs human judgment through sub-PRs.
+- **[skills/](./skills)** - Reusable skill definitions for focused agent workflows.
 
-More coming: platform-specific standards, reusable skills, prompt templates.
+## Skills
+
+- **[lemonsqueezy](./skills/lemonsqueezy/SKILL.md)** - Guidance for working with the LemonSqueezy REST API, including orders, subscriptions, customers, license keys, refunds, and store stats.
+- **[pixel-perfect-design](./skills/pixel-perfect-design/SKILL.md)** - A workflow for implementing UI from mockups or screenshots with careful attention to spacing, typography, color, hierarchy, and visual verification.
+- **[swift-concurrency](./skills/swift-concurrency/SKILL.md)** - Guidance for Swift concurrency work, including async/await, actors, tasks, `Sendable`, `@MainActor`, Swift 6 migration, and data race fixes.
+- **[swiftui-performance-audit](./skills/swiftui-performance-audit/SKILL.md)** - A code-first workflow for diagnosing SwiftUI performance issues such as janky scrolling, excessive view updates, layout thrash, high CPU, and memory problems.
+- **[swiftui-ui-patterns](./skills/swiftui-ui-patterns/SKILL.md)** - Practical SwiftUI patterns for building views, screens, navigation, tabs, sheets, state flow, and component composition.
+- **[swiftui-view-refactor](./skills/swiftui-view-refactor/SKILL.md)** - Rules for cleaning up SwiftUI view files, structuring view code, handling dependencies, and using Observation safely.
 
 ## How I Use It
 
-Drop the relevant files into your project or ~/.codex or ~/.claude folder.
+I copy or reference the relevant files when setting up an agent for a project:
 
-Or just steal what's useful and make it your own.
+- Use `AGENTS.md` for general coding behavior.
+- Use `SWIFT.md` for Swift-heavy projects.
+- Use a specific skill when the task needs specialized guidance.
+- Use `PR-loop.md` when I want an agent to babysit pull requests.
 
-## Philosophy
+The goal is not to make this universal or perfect. The goal is to keep the instructions explicit, reusable, and easy to change when something stops working.
 
-These aren't meant to be comprehensive or "correct" They're meant to be *useful*. Agents interpret literally, so the rules are explicit. They also love to skip steps, so the workflows are numbered.
+## Author
 
-If something doesn't work, I change it. If something's missing, I add it.
-
-## Contributing
-
-This is personal, but if you've got ideas or improvements, open an issue. I'm not precious about it.
-
----
-
-Built by [Daniel Bernal](https://danielbernal.co) while procrastinating on [FlowDeck](https://flowdeck.studio).
+Built by [Daniel Bernal](https://danielbernal.co).
